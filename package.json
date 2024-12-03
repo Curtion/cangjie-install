@@ -32,7 +32,7 @@
     "onStartupFinished"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --external vscode",
+    "build": "tsup src/index.ts",
     "dev": "nr build --watch",
     "prepare": "nr update",
     "update": "vscode-ext-gen --output src/generated/meta.ts",
@@ -45,10 +45,14 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.11.2",
+    "@types/node": "^22.10.1",
     "@vscode/vsce": "^3.2.1",
+    "axios": "^1.7.8",
     "bumpp": "^9.8.1",
+    "cheerio": "^1.0.0",
     "eslint": "^9.16.0",
     "reactive-vscode": "^0.2.9",
+    "tar": "^7.4.3",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vscode-ext-gen": "^0.5.0"
