@@ -1,0 +1,13 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 2ec756b7a1db887ff03620c462a3318d85ef2ae3..b87c7531492e2edc157e1aae3cab3d7be41d5599 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -223,7 +223,7 @@ function generateDTS(packageJson, options = {}) {
+   }
+   lines.push(`}`, "");
+   lines.push(`export interface NestedScopedConfigs {`);
+-  for (const entry of Object.entries(nestedConfig[extensionScope])) {
++  for (const entry of Object.entries(nestedConfig[extensionScope] ?? {})) {
+     generateNestedConfig(entry, 1, true);
+   }
+   lines.push(`}`, "");

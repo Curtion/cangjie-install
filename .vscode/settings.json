@@ -3,7 +3,7 @@
   "editor.gotoLocation.alternativeDeclarationCommand": "editor.action.revealDefinition",
   "editor.gotoLocation.alternativeDefinitionCommand": "editor.action.revealDefinition",
   "editor.gotoLocation.alternativeTypeDefinitionCommand": "editor.action.revealDefinition",
-  "editor.selectionHighlight": false,
+  "editor.selectionHighlight": true,
   "files.autoSave": "onFocusChange",
   "editor.suggest.snippetsPreventQuickSuggestions": false,
   "editor.quickSuggestions": {

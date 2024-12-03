@@ -56,5 +56,10 @@
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vscode-ext-gen": "^0.5.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "vscode-ext-gen@0.5.0": "patches/vscode-ext-gen@0.5.0.patch"
+    }
   }
 }

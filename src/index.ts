@@ -1,4 +1,3 @@
-import type { ExtensionContext } from 'vscode'
 import type { CangjieItem, ListType } from './types'
 import fs from 'node:fs'
 import * as os from 'node:os'
@@ -8,13 +7,17 @@ import axios from 'axios'
 import * as cheerio from 'cheerio'
 import { defineExtension } from 'reactive-vscode'
 import * as tar from 'tar'
-import { commands, Uri } from 'vscode'
+import { commands, extensions, Uri } from 'vscode'
 import { logger } from './utils'
 
 const host = 'https://cangjie-lang.cn'
 
-const { activate, deactivate } = defineExtension(async (context: ExtensionContext) => {
-  logger.info('Cangjie activated', context.globalStorageUri)
+const { activate, deactivate } = defineExtension(async () => {
+  const isInstalled = isExtensionInstalled('ide-innovation-lab.cangjie')
+  if (isInstalled) {
+    logger.info('Cangjie Plugin已安装')
+    return
+  }
   const Plugin = await getLatestCangjiePlugin()
   if (!Plugin) {
     logger.error('获取Cangjie Plugin失败')
@@ -22,23 +25,31 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
   }
   const url = `${host}${Plugin.url}`
   const name = Plugin.name
-  const filePath = await downloadCangjie(url, name)
-  const folderPath = path.dirname(filePath)
-  fs.createReadStream(filePath)
-    .pipe(zlib.createGunzip())
-    .pipe(tar.extract({ cwd: folderPath }))
-    .on('finish', () => {
-      console.log('解压完成')
-    })
-    .on('error', (err) => {
-      console.error('解压失败:', err)
-    })
-  // try {
-  //   const result = await installVSIX(filePath)
-  //   logger.info(result)
-  // } catch (error) {
-  //   logger.error(error)
-  // }
+  const isExist = await isExistFile(name)
+  const filePath = path.join(os.tmpdir(), name)
+  if (isExist) {
+    logger.info('文件已存在', name)
+  } else {
+    try {
+      await downloadCangjie(url, name)
+    } catch (error) {
+      logger.error('下载失败', error)
+      return
+    }
+  }
+  try {
+    await unzip(filePath)
+  } catch (error) {
+    logger.error(error)
+    return
+  }
+  const vsixPath = await getVSIXpath(filePath)
+  try {
+    const result = await installVSIX(vsixPath)
+    logger.info(result)
+  } catch (error) {
+    logger.error(error)
+  }
 })
 
 async function getLatestCangjiePlugin(): Promise<CangjieItem | undefined> {
@@ -86,7 +97,7 @@ async function installVSIX(uri: string) {
   await commands.executeCommand('workbench.extensions.installExtension', Uri.file(uri))
 }
 
-async function downloadCangjie(url: string, name: string): Promise<string> {
+async function downloadCangjie(url: string, name: string) {
   const tempDir = os.tmpdir()
   const filePath = path.join(tempDir, name)
   const response = await axios({
@@ -94,16 +105,49 @@ async function downloadCangjie(url: string, name: string): Promise<string> {
     responseType: 'stream',
     method: 'GET',
   })
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const writer = fs.createWriteStream(filePath)
     response.data.pipe(writer)
     writer.on('finish', () => {
-      resolve(filePath)
+      resolve()
     })
     writer.on('error', (err) => {
       reject(err)
     })
   })
+}
+
+async function unzip(filePath: string) {
+  const folderPath = path.dirname(filePath)
+  return new Promise<void>((resolve, reject) => {
+    fs.createReadStream(filePath)
+      .pipe(zlib.createGunzip())
+      .pipe(tar.extract({ cwd: folderPath }))
+      .on('finish', () => {
+        resolve()
+      })
+      .on('error', (err) => {
+        reject(err)
+      })
+  })
+}
+
+async function getVSIXpath(filePath: string) {
+  const folderPath = path.dirname(filePath)
+  const dir = filePath.replace('.tar.gz', '')
+  const vsixPath = path.join(folderPath, dir, fs.readdirSync(dir).find(it => it.endsWith('.vsix')) ?? '')
+  return vsixPath
+}
+
+function isExtensionInstalled(extensionId: string) {
+  const extension = extensions.getExtension(extensionId)
+  return extension !== undefined
+}
+
+async function isExistFile(name: string) {
+  const tempDir = os.tmpdir()
+  const filePath = path.join(tempDir, name)
+  return fs.existsSync(filePath)
 }
 
 export { activate, deactivate }
