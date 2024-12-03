@@ -40,7 +40,7 @@ const { activate, deactivate } = defineExtension(async () => {
   try {
     await unzip(filePath)
   } catch (error) {
-    logger.error(error)
+    logger.error('解压失败', error)
     return
   }
   const vsixPath = await getVSIXpath(filePath)
@@ -48,7 +48,7 @@ const { activate, deactivate } = defineExtension(async () => {
     const result = await installVSIX(vsixPath)
     logger.info(result)
   } catch (error) {
-    logger.error(error)
+    logger.error('安装失败', error)
   }
 })
 
