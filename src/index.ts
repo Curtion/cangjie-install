@@ -133,9 +133,8 @@ async function unzip(filePath: string) {
 }
 
 async function getVSIXpath(filePath: string) {
-  const folderPath = path.dirname(filePath)
   const dir = filePath.replace('.tar.gz', '')
-  const vsixPath = path.join(folderPath, dir, fs.readdirSync(dir).find(it => it.endsWith('.vsix')) ?? '')
+  const vsixPath = path.join(dir, fs.readdirSync(dir).find(it => it.endsWith('.vsix')) ?? '')
   return vsixPath
 }
 
