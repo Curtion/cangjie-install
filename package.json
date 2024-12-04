@@ -1,5 +1,5 @@
 {
-  "publisher": "curtion",
+  "publisher": "Curtion",
   "name": "cangjie-install",
   "displayName": "Cangjie Install",
   "version": "0.0.1",
@@ -22,9 +22,11 @@
     "Other"
   ],
   "main": "./dist/index.js",
+  "icon": "res/icon.png",
   "files": [
     "LICENSE",
-    "dist/*"
+    "dist/*",
+    "res/*"
   ],
   "engines": {
     "vscode": "^1.67.0"
