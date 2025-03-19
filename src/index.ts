@@ -67,30 +67,27 @@ async function getLatestCangjiePlugin(): Promise<CangjieItem | undefined> {
     return Promise.reject(new Error('获取script失败'))
   }
   const js_text = await axios.get(script)
-  const str = 'listTab:function(){return'
-  const fun_index = (js_text.data as string).indexOf(str)
-  if (fun_index === -1) {
-    return Promise.reject(new Error('获取listTab失败'))
-  }
-  let result = ''
-  const stack = []
-  for (let i = fun_index + str.length; i < js_text.data.length; i++) {
-    if (js_text.data[i] === '[') {
-      stack.push('[')
-    } else if (js_text.data[i] === ']') {
-      stack.pop()
+  return getLatestVscodeUrlAndName(js_text.data)
+}
+
+function getLatestVscodeUrlAndName(data: string) {
+  const regex = /Cangjie-vscode-(\d+\.\d+\.\d+)\.tar\.gz",url:"([^"]+)"/g
+  let match
+  let latestVersion = '0.0.0'
+  let latestUrl = ''
+  let latestName = ''
+  // eslint-disable-next-line no-cond-assign
+  while ((match = regex.exec(data)) !== null) {
+    const version = match[1]
+    const url = match[2]
+    const name = `Cangjie-vscode-${version}.tar.gz`
+    if (version > latestVersion) {
+      latestVersion = version
+      latestUrl = url
+      latestName = name
     }
-    result += js_text.data[i]
-    if (stack.length === 0) {
-      break
-    }
   }
-  const code = result.replaceAll(/this\.\$t\((.*?)\)/g, '$1')
-  // eslint-disable-next-line no-eval
-  const data: ListType = (0, eval)(code)
-  const plugins = data.find(it => it.list.find(i => i.name === 'VScode Plugin'))
-  const Plugin = plugins?.list[0]?.list[0]
-  return Plugin
+  return { url: latestUrl, name: latestName }
 }
 
 async function installVSIX(uri: string) {

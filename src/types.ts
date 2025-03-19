@@ -13,9 +13,4 @@ interface List2 {
 export interface CangjieItem {
   name: string
   url: string
-  version: string
-  time: string
-  sha: string
-  docurl: string
-  size: string
 }
