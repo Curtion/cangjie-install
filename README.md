@@ -1,6 +1,6 @@
 # 弃用
 
-此扩展已经弃用，因为官方已经上架该扩展。请自定安装[Cangjie](https://marketplace.visualstudio.com/items?itemName=IDE-Innovation-Lab.cangjie)扩展。
+此扩展已经弃用，因为官方已经上架官方`Cangjie`扩展。请自定安装[Cangjie](https://marketplace.visualstudio.com/items?itemName=IDE-Innovation-Lab.cangjie)扩展。
 
 # 介绍
 
